@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
-import { Text, View, SafeAreaView, Image, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, ScrollView } from "react-native";
+import React, { useState } from "react";
+import { Text, View, SafeAreaView, Image, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, ScrollView, StatusBar } from "react-native";
 import {
     responsiveHeight,
     responsiveWidth,
@@ -8,6 +8,11 @@ import {
 } from "react-native-responsive-dimensions";
 import { Formik } from "formik";
 import { object, string, number, date, InferType } from 'yup';
+import firestore, { firebase } from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
+import { useToast } from "react-native-toast-notifications";
+import { Loader } from "./loader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const validationSchema = object({
@@ -23,10 +28,61 @@ const validationSchema = object({
 
 
 const Login = () => {
-
     const navigation = useNavigation();
+    const toast = useToast();
+    const [openLoader, setOpenLoader] = useState(false)
+    //----------------------login with firebase--------------------------------------
+
+    const login = async (value) => {
+        setOpenLoader(true)
+        try {
+            await firestore()
+                .collection("user")
+                .where("email", "==", value.email)
+                .get()
+                .then((res) => {
+                    setOpenLoader(false)
+                    console.log(JSON.stringify(res.docs[0].data()))
+                    toast.show(' User Successfuly Login', {
+                        type: "success",
+                        placement: "top",
+                        duration: 4000,
+                        offset: 30,
+                        animationType: "slide-in",
+                    });
+                    storeData(res.docs[0].data())
+                    navigation.replace("home")
+
+                }
+                ).catch((error) => {
+                    console.log(error)
+                })
+
+        } catch (error) {
+            setOpenLoader(false)
+            console.log("Try catch error", error)
+            toast.show(' User not found', {
+                type: "warning",
+                placement: "top",
+                duration: 4000,
+                offset: 30,
+                animationType: "slide-in",
+            });
+        }
+    }
+    //--------------------aycnStorage---------------------------
+    const storeData = async (value) => {
+        try {
+            const jsonValue = JSON.stringify(value);
+            await AsyncStorage.setItem('my-key', jsonValue);
+        } catch (e) {
+            // saving error
+        }
+    };
+
     return (
         <View style={{ flex: 1, backgroundColor: '#fff' }}>
+
 
             <ScrollView>
 
@@ -40,7 +96,7 @@ const Login = () => {
                     <Formik
                         initialValues={{ email: '', password: '' }}
                         onSubmit={(values) => {
-                            console.log(values)
+                            login(values)
                         }}
                         validationSchema={validationSchema}
                         validateOnMount={true}
@@ -104,7 +160,13 @@ const Login = () => {
 
 
             </ScrollView>
+            <View>
+                {openLoader ?
+                    (<Loader />) : null
 
+                }
+
+            </View>
         </View>
 
     )

@@ -1,13 +1,17 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
-import { Text, View, SafeAreaView, Image, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, ScrollView } from "react-native";
+import { Text, View, SafeAreaView, Image, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, ScrollView, StatusBar } from "react-native";
 import {
     responsiveHeight,
     responsiveWidth,
     responsiveFontSize
 } from "react-native-responsive-dimensions";
 import { Formik } from "formik";
-import { object, string, number, date, InferType } from 'yup'
+import { object, string, number, date, InferType } from 'yup';
+import firestore from "@react-native-firebase/firestore";
+import auth from '@react-native-firebase/auth';
+import { useToast } from 'react-native-toast-notifications';
+import uuid from 'react-native-uuid'
 
 
 const validationSchema = object({
@@ -16,22 +20,143 @@ const validationSchema = object({
         .required("Name is required"),
     email: string().email("Invalid email").required("Email is required"),
     mobileNo: string()
-    .matches(/^(\+92|92|0)(\d{10})$/, 'Mobile Number is not valid')
-    .required('Mobile number is required'),
+        .matches(/^(\+92|92|0)(\d{10})$/, 'Mobile Number is not valid')
+        .required('Mobile number is required'),
     password: string()
         .min(6, "Password must be at least 6 characters")
         .required("Password is required"),
     confirmPassword: string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Confirm Password is required"),
+        .min(6, "Password must be at least 6 characters")
+        .required("Confirm Password is required"),
 });
+
 
 
 const Register = () => {
     const navigation = useNavigation();
+    const toast = useToast();
+    // console.log("UID : ", uuid.v4())
+
+    // ---------------------------------------------------------------------
+
+    const signUp = async (value) => {
+        console.log("user data", value)
+        try {
+            const userId = uuid.v4()
+            console.log("UID : ", userId)
+
+            // ------------------------------------------------------------------------
+            const userCredential = await auth().createUserWithEmailAndPassword(
+                value.email,
+                value.password
+            ).then(() => {
+                console.log('User account created & signed in!')
+                toast.show('User account created & signed in!', {
+                    type: "success",
+                    placement: "top",
+                    duration: 4000,
+                    offset: 30,
+                    animationType: "slide-in",
+                });
+            }).catch((error) => {
+                if (error.code === 'auth/email-already-in-use') {
+                    console.log('That email address is already in use!')
+                    toast.show('That email address is already in use!', {
+                        type: "warning",
+                        placement: "top",
+                        duration: 4000,
+                        offset: 30,
+                        animationType: "slide-in ",
+                    });
+
+                }
+
+                if (error.code === 'auth/invalid-email') {
+
+                    toast.show('That email address is invalid!', {
+                        type: "danger",
+                        placement: "top",
+                        duration: 4000,
+                        offset: 30,
+                        animationType: "slide-in ",
+                    });
+
+                }
+
+                console.error(error);
+
+            })
+            // -------------------------------------------------------------------------
+          
+            await firestore().collection('user').doc(userId).set({
+                name: value.name,
+                email: value.email,
+                mobileNo: value.mobileNo,
+                password: value.password,
+                confirmPassword: value.confirmPassword,
+                userID: userId,
+                createdAt: firestore.FieldValue.serverTimestamp(),
+
+            }).then(() => {
+
+                toast.show('User registered and data saved in Firestore!', {
+                    type: "success",
+                    placement: "top",
+                    duration: 4000,
+                    offset: 30,
+                    animationType: "slide-in",
+                });
+                navigation.replace("login")
+            }).catch((error) => {
+                console.log("error", error)
+                toast.show(error, {
+                    type: "warning",
+                    placement: "top",
+                    duration: 4000,
+                    offset: 30,
+                    animationType: "slide-in",
+                });
+            })
+
+            //--------------------------------------------------------------------------
+        } catch (error) {
+
+            if (error.code === 'auth/email-already-in-use') {
+                console.log('That email address is already in use!');
+                toast.show('That email address is already in use!', {
+                    type: "warning",
+                    placement: "top",
+                    duration: 4000,
+                    offset: 30,
+                    animationType: "slide-in",
+                });
+            } else if (error.code === 'auth/invalid-email') {
+                toast.show('That email address is invalid!', {
+                    type: "warning",
+                    placement: "top",
+                    duration: 4000,
+                    offset: 30,
+                    animationType: "slide-in ",
+                });
+            } else if (error.code === 'auth/weak-password') {
+                toast.show('Password should be at least 6 characters!', {
+                    type: "warning",
+                    placement: "top",
+                    duration: 4000,
+                    offset: 30,
+                    animationType: "slide-in ",
+                });
+            }
+            console.log("firestore Error", error)
+
+        }
+    }
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#fff' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+            {/* <StatusBar barStyle="dark-content" hidden={false} backgroundColor="#fff" translucent={true} /> */}
+
+
             <ScrollView>
                 <View>
 
@@ -47,22 +172,25 @@ const Register = () => {
                             password: "",
                             confirmPassword: ""
                         }}
-                        onSubmit={(values) => (
-                            console.log(values))}
-                            validateOnMount={true}
-                            validationSchema={validationSchema}
-                            validate={(values) => {
-                                const errors = {};
-                                if (!values.password) {
-                                    errors.password = 'Password is required';
-                                }
-                                if (!values.confirmPassword) {
-                                    errors.confirmPassword = 'Confirm Password is required';
-                                } else if (values.password !== values.confirmPassword) {
-                                    errors.confirmPassword = 'Passwords do not match';
-                                }
-                                return errors;
-                            }}
+                        onSubmit={(values, { resetForm }) => (
+                        
+                            signUp(values),
+                            resetForm()
+                        )}
+                        validateOnMount={true}
+                        validationSchema={validationSchema}
+                        validate={(values) => {
+                            const errors = {};
+                            if (!values.password) {
+                                errors.password = 'Password is required';
+                            }
+                            if (!values.confirmPassword) {
+                                errors.confirmPassword = 'Confirm Password is required';
+                            } else if (values.password !== values.confirmPassword) {
+                                errors.confirmPassword = 'Passwords do not match';
+                            }
+                            return errors;
+                        }}
                     >
 
                         {({ values, handleBlur, handleSubmit, errors, handleChange, isValid, touched }) => (
@@ -158,7 +286,7 @@ const Register = () => {
 
             </ScrollView>
 
-        </View>
+        </SafeAreaView>
 
     )
 }

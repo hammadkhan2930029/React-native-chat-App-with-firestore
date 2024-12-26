@@ -112,6 +112,7 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+     implementation project(":react-native-reanimated")
 implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
@@ -120,3 +121,4 @@ implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     }
 }
 
+apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")

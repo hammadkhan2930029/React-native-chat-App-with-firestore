@@ -4,19 +4,31 @@ import { NavigationContainer } from "@react-navigation/native";
 import Splash from "./splash";
 import Login from "./login";
 import Register from "./register";
+import { ToastProvider } from 'react-native-toast-notifications'
+import { Home } from "./home";
+import MyChat from "./tabs/chat";
 
 const Stack = createStackNavigator();
-const AppNavigator = ()=>{
-    return(
+const AppNavigator = () => {
+    return (
         <NavigationContainer>
-            <Stack.Navigator>
-                <Stack.Screen name="Splash" component={Splash} options={{headerShown:false}}/>
-                <Stack.Screen name="login" component={Login} options={{headerShown:false}}/>
-                <Stack.Screen name="register" component={Register} options={{headerShown:false}}/>
+            <ToastProvider>
+
+                <Stack.Navigator>
+                    <Stack.Screen name="Splash" component={Splash} options={{ headerShown: false }} />
+                    <Stack.Screen name="login" component={Login} options={{ headerShown: false }} />
+                    <Stack.Screen name="register" component={Register} options={{ headerShown: false }} />
+                    <Stack.Screen name="home" component={Home} options={{ headerShown: false }} />
+                    <Stack.Screen name="chat" component={MyChat} options={{ headerShown: false }} />
+                
 
 
-            </Stack.Navigator>
-            
+
+
+
+                </Stack.Navigator>
+            </ToastProvider>
+
         </NavigationContainer>
     )
 
