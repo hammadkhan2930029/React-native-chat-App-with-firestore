@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FlatList, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, SafeAreaView, Text, TouchableOpacity, View ,StatusBar} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import firestore from "@react-native-firebase/firestore";
 import { responsiveFontSize, responsiveWidth, responsiveHeight } from "react-native-responsive-dimensions";
@@ -12,7 +12,8 @@ import { Loader } from "../loader";
 const Users = () => {
     const navigation = useNavigation();
     // ----------------------------------------------------------------
-    const [userdata, setuserData] = useState(null)
+    const [openLoader, setOpenLoader] = useState(false)
+
     const [users, setUsers] = useState([])
     const [id, setId] = useState('')
 
@@ -56,13 +57,15 @@ const Users = () => {
     console.log('userS', users)
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+                        <StatusBar barStyle="dark-content" hidden={false} backgroundColor="#fff" translucent={true} />
+            
 
-            <View style={{ backgroundColor: '#fff', width: responsiveWidth(100), padding: 15, top: 40, elevation: 5 }}>
+            <View style={{ backgroundColor: '#fff', width: responsiveWidth(100), padding: 15, position: 'absolute', top: 40, elevation: 5 }}>
                 <Text style={{ color: '#000', fontSize: responsiveFontSize(2.5), textAlign: 'center', fontWeight: '700' }}>
-                    Register Users list
+                    User
                 </Text>
             </View>
-            <View style={{ marginTop: 50 }}>
+            <View style={{ marginTop: 100 }}>
                 <View>
                     {users ? (
 
@@ -72,8 +75,11 @@ const Users = () => {
                                 <View>
                                     <TouchableOpacity activeOpacity={.8} onPress={() => navigation.navigate("chat", { data: item, id: id })}>
 
-                                        <View style={{ width: responsiveWidth(90), backgroundColor: "#fff", alignSelf: 'center', flexDirection: 'row', margin: 5, padding: 5, alignItems: 'center', borderRadius: 15, elevation: 5 }}>
-                                            <Icon name="user-circle-o" size={30} color='#0096FF' />
+                                        <View style={{ width: responsiveWidth(90), backgroundColor: "#fff", alignSelf: 'center', flexDirection: 'row', margin: 5, padding: 5, alignItems: 'center', borderRadius: 10, elevation: 5 }}>
+                                            <View style={{ marginLeft: 5 }}>
+
+                                                <Icon name="user-circle-o" size={30} color='#0096FF' />
+                                            </View>
                                             <Text style={{ color: '#000', fontSize: responsiveFontSize(2.5), textAlign: 'center', fontWeight: '500', padding: 10 }}>{item.name}</Text>
 
                                         </View>
@@ -84,6 +90,13 @@ const Users = () => {
                         }} />
                     ) : (<Text>Data not found</Text>)}
                 </View>
+            </View>
+            <View>
+                {openLoader ?
+                    (<Loader />) : null
+
+                }
+
             </View>
         </SafeAreaView>
     )

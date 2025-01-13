@@ -9,19 +9,20 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Users from './tabs/users';
 import Setting from './tabs/setting';
+import Map from './tabs/map/map';
 
 export const Home = () => {
     const [selectTab, setSelectTab] = useState(0);
-    console.log('select tab',selectTab)
+    console.log('select tab', selectTab)
 
 
 
     return (
 
         <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-            <View style={{flex:1}}>
+            <View style={{ flex: 1 }}>
 
-                {selectTab == 0 ? <Users /> : <Setting />}
+                {selectTab == 0 ? <Users /> : selectTab == 1 ? <Setting /> : <Map />}
             </View>
             <View
 
@@ -37,6 +38,11 @@ export const Home = () => {
                 <View>
                     <TouchableOpacity onPress={() => setSelectTab(1)}>
                         <Icon name="settings" size={30} color={selectTab == 1 ? "#000" : "lightgray"} />
+                    </TouchableOpacity>
+                </View>
+                <View>
+                    <TouchableOpacity onPress={() => setSelectTab(2)}>
+                        <Icon name="map" size={30} color={selectTab == 2 ? "#000" : "lightgray"} />
                     </TouchableOpacity>
                 </View>
 

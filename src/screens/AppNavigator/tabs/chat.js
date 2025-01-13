@@ -26,8 +26,6 @@ const MyChat = () => {
 
                 return {
                     ...item._data,
-
-
                     createdAt: Date.parse(new Date())
                 }
             })
@@ -44,8 +42,7 @@ const MyChat = () => {
             ...msg,
             sendBy: id,
             sentTo: data.userID,
-            createdAt: firestore.FieldValue.serverTimestamp(),
-            // createdAt : Date.parse(msg.createdAt)
+            createdAt : Date.parse(msg.createdAt)
         }
         setMessagesList(previousMessages =>
             GiftedChat.append(previousMessages, myMsg),

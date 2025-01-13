@@ -35,17 +35,19 @@ const Login = () => {
 
     const login = async (value) => {
         setOpenLoader(true)
+        const email = value.email.toLowerCase();
+        
         try {
             await firestore()
                 .collection("user")
-                .where("email", "==", value.email)
+                .where("email", "==", email)
                 .get()
                 .then((res) => {
                     setOpenLoader(false)
                     console.log(JSON.stringify(res.docs[0].data()))
                     toast.show(' User Successfuly Login', {
                         type: "success",
-                        placement: "top",
+                        placement: "bottom",
                         duration: 4000,
                         offset: 30,
                         animationType: "slide-in",
@@ -63,7 +65,7 @@ const Login = () => {
             console.log("Try catch error", error)
             toast.show(' User not found', {
                 type: "warning",
-                placement: "top",
+                placement: "bottom",
                 duration: 4000,
                 offset: 30,
                 animationType: "slide-in",

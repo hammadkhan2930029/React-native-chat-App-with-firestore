@@ -40,7 +40,10 @@ const Register = () => {
     // ---------------------------------------------------------------------
 
     const signUp = async (value) => {
-        console.log("user data", value)
+        const email = value.email.toLowerCase();
+        console.log("user data", email)
+        
+    
         try {
             const userId = uuid.v4()
             console.log("UID : ", userId)
@@ -53,7 +56,7 @@ const Register = () => {
                 console.log('User account created & signed in!')
                 toast.show('User account created & signed in!', {
                     type: "success",
-                    placement: "top",
+                    placement: "bottom",
                     duration: 4000,
                     offset: 30,
                     animationType: "slide-in",
@@ -63,7 +66,7 @@ const Register = () => {
                     console.log('That email address is already in use!')
                     toast.show('That email address is already in use!', {
                         type: "warning",
-                        placement: "top",
+                        placement: "bottom",
                         duration: 4000,
                         offset: 30,
                         animationType: "slide-in ",
@@ -75,7 +78,7 @@ const Register = () => {
 
                     toast.show('That email address is invalid!', {
                         type: "danger",
-                        placement: "top",
+                        placement: "bottom",
                         duration: 4000,
                         offset: 30,
                         animationType: "slide-in ",
@@ -90,7 +93,7 @@ const Register = () => {
           
             await firestore().collection('user').doc(userId).set({
                 name: value.name,
-                email: value.email,
+                email: email,
                 mobileNo: value.mobileNo,
                 password: value.password,
                 confirmPassword: value.confirmPassword,
@@ -101,7 +104,7 @@ const Register = () => {
 
                 toast.show('User registered and data saved in Firestore!', {
                     type: "success",
-                    placement: "top",
+                    placement: "bottom",
                     duration: 4000,
                     offset: 30,
                     animationType: "slide-in",
@@ -111,7 +114,7 @@ const Register = () => {
                 console.log("error", error)
                 toast.show(error, {
                     type: "warning",
-                    placement: "top",
+                    placement: "bottom",
                     duration: 4000,
                     offset: 30,
                     animationType: "slide-in",
@@ -125,7 +128,7 @@ const Register = () => {
                 console.log('That email address is already in use!');
                 toast.show('That email address is already in use!', {
                     type: "warning",
-                    placement: "top",
+                    placement: "bottom",
                     duration: 4000,
                     offset: 30,
                     animationType: "slide-in",
@@ -133,7 +136,7 @@ const Register = () => {
             } else if (error.code === 'auth/invalid-email') {
                 toast.show('That email address is invalid!', {
                     type: "warning",
-                    placement: "top",
+                    placement: "bottom",
                     duration: 4000,
                     offset: 30,
                     animationType: "slide-in ",
@@ -141,7 +144,7 @@ const Register = () => {
             } else if (error.code === 'auth/weak-password') {
                 toast.show('Password should be at least 6 characters!', {
                     type: "warning",
-                    placement: "top",
+                    placement: "bottm",
                     duration: 4000,
                     offset: 30,
                     animationType: "slide-in ",
@@ -154,7 +157,7 @@ const Register = () => {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-            {/* <StatusBar barStyle="dark-content" hidden={false} backgroundColor="#fff" translucent={true} /> */}
+            <StatusBar barStyle="dark-content" hidden={false} backgroundColor="#fff" translucent={true} />
 
 
             <ScrollView>
